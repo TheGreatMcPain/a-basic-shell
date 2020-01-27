@@ -3,18 +3,21 @@
 #include <string.h>
 #include <strings.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define MAX_LINE 80
 #define ARGV_SIZE 10
 
 int main() {
+  pid_t pid;
   char cmd[MAX_LINE];
   char *token = NULL;
   char *myArgv[ARGV_SIZE];
   int argNum;
 
   while (1) {
+    // Set argNum to 0, and clear myArgv.
     argNum = 0;
     memset(myArgv, 0, sizeof(myArgv));
 
@@ -37,9 +40,15 @@ int main() {
     // Assign each tokens to myArgv array.
     while (token != NULL) {
       myArgv[argNum] = token;
-      printf("%s\n", token);
       token = strtok(NULL, " ");
       argNum++;
+    }
+
+    // Fork process and exec myArgv.
+    if ((pid = fork()) == 0) {
+      execvp(myArgv[0], myArgv);
+    } else {
+      waitpid(-1, NULL, 0);
     }
   }
 
