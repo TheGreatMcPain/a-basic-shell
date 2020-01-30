@@ -40,10 +40,10 @@ int main() {
     // Remove '\n' from string.
     cmd[strcspn(cmd, "\n")] = 0;
 
-    /* Convert import to array of strings */
+    /* Convert input to array of strings */
     token = strtok(cmd, " ");
 
-    // Assign each tokens to myArgv array.
+    // Assign each token to myArgv array.
     while (token != NULL) {
       myArgv[argNum] = token;
       token = strtok(NULL, " ");
