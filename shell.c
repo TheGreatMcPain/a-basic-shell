@@ -23,14 +23,15 @@ int main() {
   while (1) {
     /* Get User input */
     printf("prompt$ ");
-    // send the return value to the void.
-    // Tells compiler to ignore fgets' return value.
-    (void)(fgets(cmd, MAX_LINE, stdin) + 1);
 
-    // If no input is provided.
-    // go to the beginning of the while loop.
-    if (isEmpty(cmd)) {
-      continue;
+    if (fgets(cmd, MAX_LINE, stdin) != NULL) {
+      // If no input is provided.
+      // go to the beginning of the while loop.
+      if (isEmpty(cmd)) {
+        continue;
+      }
+    } else {
+      printf("Failed to get input.\n");
     }
 
     // Set argNum to 0, and clear myArgv.
@@ -38,6 +39,7 @@ int main() {
     memset(myArgv, 0, sizeof(myArgv));
 
     /* Convert input to array of strings */
+    // Split string at each 'space', and 'newline'.
     token = strtok(cmd, " \n");
 
     // Assign each token to myArgv array.
