@@ -37,16 +37,13 @@ int main() {
     argNum = 0;
     memset(myArgv, 0, sizeof(myArgv));
 
-    // Remove '\n' from string.
-    cmd[strcspn(cmd, "\n")] = 0;
-
     /* Convert input to array of strings */
-    token = strtok(cmd, " ");
+    token = strtok(cmd, " \n");
 
     // Assign each token to myArgv array.
     while (token != NULL) {
       myArgv[argNum] = token;
-      token = strtok(NULL, " ");
+      token = strtok(NULL, " \n");
       argNum++;
     }
 
