@@ -3,9 +3,9 @@ Program Name: shell
 Compile: gcc -o shell -O3 shell.c
 Run: ./shell
 
-1. Callenges that I ran into:
+1. Challenges that I ran into:
 
-    One if the first things I ran into had to do with
+    One of the first things I ran into had to do with
 gcc complaining about ignoring that return value of fgets().
 Which on it's own seems pretty harmless, but I wanted to silence
 that warning, so the first thing I tried came from
@@ -14,7 +14,7 @@ which looked like this (void)(fgets(cmd, MAX_LINE, stdin)+1).
 I later realized how ugly that solution was, so I decided to put
 fgets() in an 'if' statement.
 
-    When I was tring to figure out how to remove the newline character
+    When I was trying to figure out how to remove the newline character
 from my fgets() string I came across strcspn(), and used it like this
 'cmd[strcspn(cmd, "\n")] = 0;' which came from
 here: (https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input)
