@@ -19,6 +19,7 @@
 
 #define MAX_LINE 80
 #define ARGV_SIZE 10
+#define MAX_SHOWPID 5
 
 // Prototypes
 int isEmpty(char const *str);
@@ -27,10 +28,14 @@ pid_t execArgv(char *const args[]);
 int main() {
   pid_t pid;
   char cmd[MAX_LINE];
-  char *token = NULL;
   char *myArgv[ARGV_SIZE];
+  char *token = NULL;
   char tok[3] = " \n";
-  int argNum;
+  int pids[MAX_SHOWPID];
+  int argNum = 0;
+  int i;
+
+  memset(pids, 0, sizeof(pids));
 
   while (1) {
     /* Get User input */
@@ -67,9 +72,29 @@ int main() {
     if (strncmp(myArgv[0], "exit", 4) == 0) {
       printf("Exiting!\n");
       exit(0);
+    } else if (strncmp(myArgv[0], "cd", 2) == 0) {
+      if (chdir(myArgv[1]) == 0) {
+        setenv("PWD", myArgv[1], 1);
+      } else {
+        printf("'%s' does not exist.\n", myArgv[1]);
+      }
+    } else if (strncmp(myArgv[0], "showpid", 7) == 0) {
+      for (i = 0; i < MAX_SHOWPID; i++) {
+        if (pids[i] != 0) {
+          printf("%d\n", pids[i]);
+        }
+      }
+    } else {
+      // Run non-builtin, and store pid in pid array.
+      pid = execArgv(myArgv);
+      // if execArgv returns 0 don't add it to pid array.
+      if (pid != 0) {
+        for (i = 1; i < MAX_SHOWPID; i++) {
+          pids[i - 1] = pids[i];
+        }
+        pids[MAX_SHOWPID - 1] = pid;
+      }
     }
-
-    pid = execArgv(myArgv);
   }
 
   return 0;
@@ -93,12 +118,41 @@ int isEmpty(char const *str) {
 // implement.
 pid_t execArgv(char *const args[]) {
   pid_t pid;
+  // Used for return value of execvp.
+  int error = 0;
+  // Create pipe that will allow child to
+  // send the return value of execvp to parent.
+  // pipefd[0] is the read end, and
+  // pipefd[1] is the write end.
+  int pipefd[2];
+  if (pipe(pipefd) == -1) {
+    printf("Failed to create pipe.\n");
+  }
+
   if ((pid = fork()) == 0) {
-    execvp(args[0], args);
+    close(pipefd[0]);  // prevent child from writing to read end.
+    error = execvp(args[0], args);
+    // write execvp's return value to pipe.
+    if (write(pipefd[1], &error, sizeof(error)) == -1) {
+      printf("Write to pipe failed.\n");
+    }
+    close(pipefd[1]);  // close pipe when done.
     printf("Error: Command could not be executed\n");
     exit(0);
   } else {
+    close(pipefd[1]);  // prevent parent from reading the write end.
+    // read the value that the child wrote, and put it in 'error'.
+    if (read(pipefd[0], &error, sizeof(error)) == -1) {
+      printf("Read from pipe failed.\n");
+    }
+    close(pipefd[0]);  // close pipe when done.
     waitpid(-1, NULL, 0);
   }
-  return pid;
+
+  // If execvp fails return 0
+  if (error == -1) {
+    return 0;
+  } else {
+    return pid;
+  }
 }
