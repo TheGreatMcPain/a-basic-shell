@@ -12,7 +12,7 @@ that warning, so the first thing I tried came from
 here: (https://stackoverflow.com/questions/11888594/ignoring-return-values-in-c)
 which looked like this (void)(fgets(cmd, MAX_LINE, stdin)+1).
 I later realized how ugly that solution was, so I decided to put
-fgets() in an 'if' statement. 
+fgets() in an 'if' statement.
 
     When I was tring to figure out how to remove the newline character
 from my fgets() string I came across strcspn(), and used it like this
