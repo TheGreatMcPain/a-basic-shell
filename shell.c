@@ -21,7 +21,7 @@
 #define ARGV_SIZE 10
 
 // Prototypes
-int isEmpty(const char *str);
+int isEmpty(char const *str);
 pid_t execArgv(char *const args[]);
 
 int main() {
@@ -69,15 +69,6 @@ int main() {
       exit(0);
     }
 
-    /* Execute Non-builtins */
-    // Fork process and exec myArgv.
-    // if ((pid = fork()) == 0) {
-    //  execvp(myArgv[0], myArgv);
-    //  printf("Error: Command could not be executed\n");
-    //  exit(0);
-    //} else {
-    //  waitpid(-1, NULL, 0);
-    //}
     pid = execArgv(myArgv);
   }
 
@@ -86,7 +77,7 @@ int main() {
 
 // Return true if input string is only whitespace.
 // otherwise return false.
-int isEmpty(const char *str) {
+int isEmpty(char const *str) {
   while (*str != '\n') {
     if (!isspace(*str)) {
       return false;
