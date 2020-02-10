@@ -23,6 +23,7 @@
 
 // Prototypes
 int isEmpty(char const *str);
+void changeDir(char *const args[]);
 pid_t execArgv(char *const args[]);
 
 int main() {
@@ -73,11 +74,7 @@ int main() {
       printf("Exiting!\n");
       exit(0);
     } else if (strncmp(myArgv[0], "cd", 2) == 0) {
-      if (chdir(myArgv[1]) == 0) {
-        setenv("PWD", myArgv[1], 1);
-      } else {
-        printf("'%s' does not exist.\n", myArgv[1]);
-      }
+      changeDir(myArgv);
     } else if (strncmp(myArgv[0], "showpid", 7) == 0) {
       for (i = 0; i < MAX_SHOWPID; i++) {
         if (pids[i] != 0) {
@@ -110,6 +107,38 @@ int isEmpty(char const *str) {
     str++;
   }
   return true;
+}
+
+// Function for 'cd'
+void changeDir(char *const args[]) {
+  char *home = getenv("HOME");
+  char newDir[MAX_LINE] = "\0";
+  unsigned long i = 0;
+
+  if (args[1] == NULL) {
+    for (i = 0; i < strlen(home); i++) {
+      newDir[i] = home[i];
+    }
+    // if the first character in the directory
+    // is a '~' change it to the HOME directory.
+  } else if (strncmp(args[1], "~", 1) == 0) {
+    strcat(newDir, home);
+    while (args[1][i + 1] != '\0') {
+      newDir[strlen(home) + i] = args[1][i + 1];
+      i++;
+    }
+    // Otherwise just put the directory
+    // into newDir.
+  } else {
+    for (i = 0; args[1][i] != '\0'; i++) {
+      newDir[i] = args[1][i];
+    }
+  }
+  if (chdir(newDir) == 0) {
+    setenv("PWD", newDir, 1);
+  } else {
+    printf("\"%s\" does not exist.\n", newDir);
+  }
 }
 
 // Moved fork and execvp into it's own function
