@@ -48,7 +48,7 @@ int main() {
 
   while (1) {
     /* Get User input */
-    printf("prompt$ ");
+    printf("%s$ ", getenv("PWD"));
 
     // Error checking for 'fgets'.
     // This also makes sure gcc doesn't compliain about fgets' return value.
@@ -253,6 +253,7 @@ int lastCmd(char history[][MAX_LINE], char *str) {
 
 // Function for 'cd'
 void changeDir(char *const args[]) {
+  char cwd[MAX_LINE];
   char *home = getenv("HOME");
   char newDir[MAX_LINE] = "\0";
   unsigned long i = 0;
@@ -281,7 +282,11 @@ void changeDir(char *const args[]) {
   // If we succeed in changing directories change the PWD
   // variable to the new directory.
   if (chdir(newDir) == 0) {
-    setenv("PWD", newDir, 1);
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+      printf("getcwd() failed.");
+    } else {
+      setenv("PWD", cwd, 1);
+    }
   } else {
     printf("\"%s\" does not exist.\n", newDir);
   }
