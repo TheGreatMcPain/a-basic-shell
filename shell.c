@@ -23,11 +23,29 @@
 #define MAX_HIS 5
 #define MAX_SHOWPID 5
 
+// Colors
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32m"
+#define YELLOW "\x1b[33m"
+#define BLUE "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN "\x1b[36m"
+#define RESET "\x1b[0m"
+#define NUM_COLORS 6
+
+// Structs
+struct Color {
+  char name[50];
+  char ansi[10];
+};
+
 // Prototypes
 int isEmpty(char const *str);
 int isNumber(char const *str);
-void strToArgv(char *argv[], char str[]);
+int strToArgv(char *argv[], int size, char str[]);
 int lastCmd(char history[][MAX_LINE], char *str);
+void changeColor(char *const args[], struct Color colors[],
+                 struct Color *colorPtr);
 void changeDir(char *const args[]);
 pid_t execArgv(char *const args[]);
 
@@ -35,20 +53,42 @@ int main() {
   pid_t pid;
   bool success = true;
   int lc;
-  char ch;
+  char junk;
   char cmd[MAX_LINE];
   char cmdCopy[MAX_LINE];
   char *myArgv[ARGV_SIZE];
   char history[MAX_HIS][MAX_LINE];
+  struct Color colors[NUM_COLORS];
+  struct Color color;
   int pids[MAX_SHOWPID];
   int i;
+
+  // There's probably a better way to do this.
+  memset(colors, 0, sizeof(colors));
+  strcpy(colors[0].ansi, RED);
+  strcpy(colors[1].ansi, GREEN);
+  strcpy(colors[2].ansi, YELLOW);
+  strcpy(colors[3].ansi, BLUE);
+  strcpy(colors[4].ansi, MAGENTA);
+  strcpy(colors[5].ansi, CYAN);
+
+  strcpy(colors[0].name, "red");
+  strcpy(colors[1].name, "green");
+  strcpy(colors[2].name, "yellow");
+  strcpy(colors[3].name, "blue");
+  strcpy(colors[4].name, "magenta");
+  strcpy(colors[5].name, "cyan");
+
+  // Set default color.
+  // '3' is blue.
+  color = colors[3];
 
   memset(pids, 0, sizeof(pids));
   memset(history, 0, sizeof(history));
 
   while (1) {
     /* Get User input */
-    printf("%s$ ", getenv("PWD"));
+    printf("%s%s$ " RESET, color.ansi, getenv("PWD"));
 
     // Error checking for 'fgets'.
     // This also makes sure gcc doesn't compliain about fgets' return value.
@@ -57,8 +97,10 @@ int main() {
       // Print an error message.
       if (cmd[strlen(cmd) - 1] != '\n') {
         printf("Input must be less than %d characters\n", MAX_LINE);
-        while ((ch = fgetc(stdin)) != '\n' && ch != EOF) {
-          // Sending the rest of stdin to the void. (I think)
+        // While the return value of fgetc is not a newline, or
+        // isn't "End Of File". Do nothing.
+        while ((junk = fgetc(stdin)) != '\n' && junk != EOF) {
+          // Dump the rest of stdin into "junk".
         }
         continue;
       }
@@ -86,12 +128,17 @@ int main() {
     memset(myArgv, 0, sizeof(myArgv));
 
     /* Convert input to array of strings */
-    strToArgv(myArgv, cmd);
+    if (strToArgv(myArgv, ARGV_SIZE, cmd) == 1) {
+      printf("Input must be less than, or equal to %d arguments.\n", ARGV_SIZE);
+      continue;
+    }
 
-    /* Build-in commands */
+    /* Other Build-in commands */
     if (strncmp(myArgv[0], "exit", 4) == 0) {
       printf("Exiting!\n");
       exit(0);
+    } else if (strncmp(myArgv[0], "color", 5) == 0) {
+      changeColor(myArgv, colors, &color);
     } else if (strncmp(myArgv[0], "cd", 2) == 0) {
       changeDir(myArgv);
     } else if (strncmp(myArgv[0], "showpid", 7) == 0) {
@@ -134,7 +181,7 @@ int main() {
   return 0;
 }
 
-void strToArgv(char *argv[], char str[]) {
+int strToArgv(char *argv[], int size, char str[]) {
   char tok[3] = " \n";
   char *token = NULL;
   int i = 0;
@@ -142,10 +189,14 @@ void strToArgv(char *argv[], char str[]) {
   token = strtok(str, tok);
 
   while (token != NULL) {
+    if (i == size) {
+      return 1;
+    }
     argv[i] = token;
     token = strtok(NULL, tok);
     i++;
   }
+  return 0;
 }
 
 // Return true if input string is only whitespace.
@@ -194,7 +245,7 @@ int lastCmd(char history[][MAX_LINE], char *str) {
   memset(selection, 0, sizeof(selection));
   memset(args, 0, sizeof(args));
   // convert the copy of str to args array.
-  strToArgv(args, newCmd);
+  strToArgv(args, 2, newCmd);
 
   if (strncmp(args[0], "lc", 2) == 0) {
     // List the contents of history.
@@ -249,6 +300,34 @@ int lastCmd(char history[][MAX_LINE], char *str) {
     }
   }
   return 0;
+}
+
+void changeColor(char *const args[], struct Color colors[],
+                 struct Color *colorPtr) {
+  int i;
+
+  // If no arguments print the current color.
+  if (args[1] == NULL) {
+    printf("Current color is: %s%s\n" RESET, colorPtr->ansi, colorPtr->name);
+    // If 'list' is supplied list the available colors.
+  } else if (strncmp(args[1], "list", 4) == 0) {
+    for (i = 0; i < NUM_COLORS; i++) {
+      printf("%s%s\n", colors[i].ansi, colors[i].name);
+    }
+    // If a color name is supplied. Than search through the
+    // colors array and set 'color' if found. Otherwise print
+    // error message.
+  } else if (strncmp(args[1], "\0", 1) != 0) {
+    for (i = 0; i < NUM_COLORS; i++) {
+      if (strcmp(colors[i].name, args[1]) == 0) {
+        *colorPtr = colors[i];
+        break;
+      }
+    }
+    if (i == NUM_COLORS) {
+      printf("\"%s\" Is not a color.\n", args[1]);
+    }
+  }
 }
 
 // Function for 'cd'
