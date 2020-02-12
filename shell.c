@@ -1,6 +1,6 @@
 /***************************************************************
  * Name of Program: shell
- * Aurhor: James McClain
+ * Author: James McClain
  * Description: Just a basic shell program that allows the user
  *              to run other terminal programs.
  ***************************************************************/
@@ -32,7 +32,7 @@
 #define RESET "\x1b[0m"
 #define NUM_COLORS 6
 
-// Structs
+// Structures
 struct Color {
   char name[50];
   char ansi[10];
@@ -90,9 +90,9 @@ int main() {
     printf("%s%s$ " RESET, color.ansi, getenv("PWD"));
 
     // Error checking for 'fgets'.
-    // This also makes sure gcc doesn't compliain about fgets' return value.
+    // This also makes sure gcc doesn't complain about fgets' return value.
     if (fgets(cmd, MAX_LINE, stdin) != NULL) {
-      // If the last char of cmd is not a newline (which should be their).
+      // If the last char of cmd is not a newline (which should be there).
       // Print an error message.
       if (cmd[strlen(cmd) - 1] != '\n') {
         printf("Input must be less than %d characters\n", MAX_LINE);
@@ -210,7 +210,7 @@ int isEmpty(char const *str) {
   return true;
 }
 
-// Fuction that is similar to isEmpty, but this
+// Function that is similar to isEmpty, but this
 // time it checks if a string is actually an integer.
 // Due to how this function works it will return false for
 // negative integers.
@@ -305,7 +305,7 @@ int lastCmd(char history[][MAX_LINE], char *str) {
 
 // This function is for the 'color' command.
 //
-// If no other arguments are privided it will simply print
+// If no other arguments are provided it will simply print
 // the current color.
 //
 // If 'list' is provided it will print the available colors.
