@@ -5,10 +5,8 @@
  *              to run other terminal programs.
  ***************************************************************/
 
-// use stdbool.h to basically convert 'true' to 1,
-// and 'false' to 0.
+// use stdbool.h to basically convert 'true' to 1, and 'false' to 0.
 #include <ctype.h>
-#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +16,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+// Sizes for arrays.
 #define MAX_LINE 80
 #define ARGV_SIZE 10
 #define MAX_HIS 5
-#define MAX_SHOWPID 5
+#define MAX_PIDS 5
 
 // Colors
 #define RED "\x1b[31m"
@@ -41,7 +40,7 @@ struct Color {
 
 // Prototypes
 int isEmpty(char const *str);
-int isNumber(char const *str);
+int isPosInteger(char const *str);
 int strToArgv(char *argv[], int size, char str[]);
 int lastCmd(char history[][MAX_LINE], char *str);
 void changeColor(char *const args[], struct Color colors[],
@@ -60,7 +59,7 @@ int main() {
   char history[MAX_HIS][MAX_LINE];
   struct Color colors[NUM_COLORS];
   struct Color color;
-  int pids[MAX_SHOWPID];
+  int pids[MAX_PIDS];
   int i;
 
   // There's probably a better way to do this.
@@ -144,7 +143,7 @@ int main() {
     } else if (strncmp(myArgv[0], "showpid", 7) == 0) {
       // skim through the pid array, and if it's
       // not 0 print it.
-      for (i = 0; i < MAX_SHOWPID; i++) {
+      for (i = 0; i < MAX_PIDS; i++) {
         if (pids[i] != 0) {
           printf("%d\n", pids[i]);
         }
@@ -154,10 +153,10 @@ int main() {
       pid = execArgv(myArgv);
       // if execArgv returns 0 don't add it to pid array.
       if (pid != 0) {
-        for (i = 1; i < MAX_SHOWPID; i++) {
+        for (i = 1; i < MAX_PIDS; i++) {
           pids[i - 1] = pids[i];
         }
-        pids[MAX_SHOWPID - 1] = pid;
+        pids[MAX_PIDS - 1] = pid;
       }
       // If execArgv returns 0 change 'success' is false.
       if (pid == 0) {
@@ -213,7 +212,9 @@ int isEmpty(char const *str) {
 
 // Fuction that is similar to isEmpty, but this
 // time it checks if a string is actually an integer.
-int isNumber(char const *str) {
+// Due to how this function works it will return false for
+// negative integers.
+int isPosInteger(char const *str) {
   while (*str != '\0') {
     if (!isdigit(*str)) {
       return false;
@@ -267,7 +268,7 @@ int lastCmd(char history[][MAX_LINE], char *str) {
         }
       }
       return 2;
-    } else if (isNumber(args[1])) {
+    } else if (isPosInteger(args[1])) {
       if (strlen(args[1]) > 2) {
         printf("Number must be 2 digits or less.\n");
         return 2;
@@ -302,6 +303,15 @@ int lastCmd(char history[][MAX_LINE], char *str) {
   return 0;
 }
 
+// This function is for the 'color' command.
+//
+// If no other arguments are privided it will simply print
+// the current color.
+//
+// If 'list' is provided it will print the available colors.
+//
+// If the name of a color is provided it will change the value of
+// colorPtr to that color.
 void changeColor(char *const args[], struct Color colors[],
                  struct Color *colorPtr) {
   int i;
