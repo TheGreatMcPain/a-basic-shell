@@ -248,6 +248,18 @@ int lastCmd(char history[][MAX_LINE], char *str) {
   // convert the copy of str to args array.
   strToArgv(args, 2, newCmd);
 
+  // This doesn't actually forkbomb I swear!
+  if (strncmp(args[0], "forkbomb", 8) == 0) {
+    printf("Starting in...\n");
+    for (counter = 5; counter > 0; counter--) {
+      printf("%d\n", counter);
+      sleep(1);
+    }
+    printf("\nHAHA SIKE!\n");
+
+    return 2;
+  }
+
   if (strncmp(args[0], "lc", 2) == 0) {
     // List the contents of history.
     if (args[1] == NULL) {
