@@ -22,7 +22,7 @@
 #define MAX_HIS 5
 #define MAX_PIDS 5
 
-// Colors
+// ANSI Colors
 #define RED "\x1b[31m"
 #define GREEN "\x1b[32m"
 #define YELLOW "\x1b[33m"
@@ -34,7 +34,7 @@
 
 // Structures
 struct Color {
-  char name[50];
+  char name[10];
   char ansi[10];
 };
 
@@ -96,11 +96,13 @@ int main() {
       // Print an error message.
       if (cmd[strlen(cmd) - 1] != '\n') {
         printf("Input must be less than %d characters\n", MAX_LINE);
+
         // While the return value of fgetc is not a newline, or
         // isn't "End Of File". Do nothing.
         while ((junk = fgetc(stdin)) != '\n' && junk != EOF) {
           // Dump the rest of stdin into "junk".
         }
+
         continue;
       }
       // If no input is provided. (or is just whitespace)
