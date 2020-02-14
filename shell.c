@@ -6,7 +6,9 @@
  ***************************************************************/
 
 // use stdbool.h to basically convert 'true' to 1, and 'false' to 0.
+// Using limits.h to provide PATH_MAX
 #include <ctype.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +55,6 @@ int main() {
   pid_t pid;
   bool success = true;
   int lc;
-  char junk;
   char cmd[MAX_LINE];
   char cmdCopy[MAX_LINE];
   char *myArgv[ARGV_SIZE];
@@ -101,10 +102,8 @@ int main() {
       if (cmd[strlen(cmd) - 1] != '\n') {
         printf("Input must be less than %d characters\n", MAX_LINE);
 
-        // While the return value of fgetc is not a newline, or
-        // isn't "End Of File". Do nothing.
-        while ((junk = fgetc(stdin)) != '\n' && junk != EOF) {
-          // Dump the rest of stdin into "junk".
+        while (fgetc(stdin) != '\n') {
+          // Discard until newline.
         }
 
         continue;
@@ -191,7 +190,7 @@ void genPrompt(struct Color color1, struct Color color2) {
   char *user = getlogin();
   char *home = getenv("HOME");
   char *currentDir = getenv("PWD");
-  char newDir[MAX_LINE];
+  char newDir[PATH_MAX];
   char hostname[MAX_LINE];
 
   // Grabs the hosts' hostname.
@@ -312,7 +311,7 @@ int lastCmd(char history[][MAX_LINE], char *str) {
       printf("%d\n", counter);
       sleep(1);
     }
-    printf("\nHAHA SIKE!\n");
+    printf("\nJust Kidding!\n");
 
     return 2;
   }
@@ -437,31 +436,26 @@ void changeColor(char *const args[], struct Color colors[],
 
 // Function for 'cd'
 void changeDir(char *const args[]) {
-  char cwd[MAX_LINE];
+  char *strPtr = NULL;
+  char cwd[PATH_MAX];
   char *home = getenv("HOME");
-  char newDir[MAX_LINE] = "\0";
-  unsigned long i = 0;
+  char newDir[PATH_MAX] = "\0";
 
   // if 'cd' is not supplied with any arguments
   // just change directory to HOME.
   if (args[1] == NULL) {
-    for (i = 0; i < strlen(home); i++) {
-      newDir[i] = home[i];
-    }
+    strcpy(newDir, home);
     // if the first character in the directory
     // is a '~' replace '~' with the HOME directory.
   } else if (strncmp(args[1], "~", 1) == 0) {
-    strcat(newDir, home);
-    while (args[1][i + 1] != '\0') {
-      newDir[strlen(home) + i] = args[1][i + 1];
-      i++;
-    }
+    strcpy(newDir, home);
+    // Ignore the '~' in args[1].
+    strPtr = args[1] + 1;
+    strcat(newDir, strPtr);
     // If the argument is just a directory with no '~' at
     // the beginning just make the argument 'newDir'.
   } else {
-    for (i = 0; args[1][i] != '\0'; i++) {
-      newDir[i] = args[1][i];
-    }
+    strcpy(newDir, args[1]);
   }
   // If we succeed in changing directories change the PWD
   // variable to the new directory.
