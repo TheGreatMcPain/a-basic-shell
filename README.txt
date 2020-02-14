@@ -5,19 +5,19 @@ Run: ./shell
 
 Built in commands:
 
-"cd":                       Goto the user's home directory.
-"cd <path name>":           Change working directory.
-"cd ~/<path name>":         Goto a directory that's inside of home.
-"cd Path\ With\ Spaces":    If the path name has spaces put a "\"
-                            before each space.
+"cd":                           Goto the user's home directory.
+"cd <path name>":               Change working directory.
+"cd ~/<path name>":             Goto a directory that's inside of home.
+"cd Path\ With\ Spaces":        If the path name has spaces put a "\"
+                                before each space.
 
-"showpid":          Show the last 5 child process ids.
+"showpid":                      Show the last 5 child process ids.
 
-"lc":                       Rerun the last command.
-"lc list":                  List the last 5 commands.
-"lc <number from list>":    Rerun one of the last 5 commands.
+"lc":                           Rerun the last command.
+"lc list":                      List the last 5 commands.
+"lc <number from list>":        Rerun one of the last 5 commands.
 
-"exit": Exits the shell
+"exit":                         Exits the shell
 
 "color":                        Shows the currently selected colors.
 "color list":                   Lists available colors.
