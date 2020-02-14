@@ -196,6 +196,9 @@ void genPrompt(struct Color color1, struct Color color2) {
   // Grabs the hosts' hostname.
   gethostname(hostname, MAX_LINE);
 
+  // Remove domain from hostname.
+  strcpy(hostname, strtok(hostname, "."));
+
   // Replace the home directory with '~'.
   if (strncmp(currentDir, home, strlen(home)) == 0) {
     strcpy(newDir, "~");
