@@ -5,9 +5,11 @@ Run: ./shell
 
 Built in commands:
 
-"cd <path name>":   Change working directory.
-                    If a directory has a space in it
-                    put a "\" before the space.
+"cd":                       Goto the user's home directory.
+"cd <path name>":           Change working directory.
+"cd ~/<path name>":         Goto a directory that's inside of home.
+"cd Path\ With\ Spaces":    If the path name has spaces put a "\"
+                            before each space.
 
 "showpid":          Show the last 5 child process ids.
 
@@ -24,7 +26,7 @@ Built in commands:
                                 part of the prompt.
 
 "I also added an easter egg command. It doesn't actually do
-what you think it does though." HINT: It starts with fork.
+what you think it does." HINT: It starts with fork.
 
 Challenges that I ran into:
 
