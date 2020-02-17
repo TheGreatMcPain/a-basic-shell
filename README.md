@@ -14,8 +14,9 @@ $ ./shell
 
 ## Built in commands
 
+| command | description |
+|---------|-------------|
 | 'cd' | Goto home directory. |
-|------|----------------------|
 | 'cd <path>' | Change current directory. |
 | 'cd ~/<path>' | Goto a directory that's inside of home. |
 | 'cd Path\ With\ Spaces' | If the path name has spaces put a '\' before each space. |
