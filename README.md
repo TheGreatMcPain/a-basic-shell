@@ -39,7 +39,6 @@ $ ./shell
 'color list'                Lists available colors.
 
 'color prompt <color name>' Changes the color of the prompt.
-
 'color dir <color name>'    Changes the color of the directory part of the prompt.
 
 ## Known limitations
