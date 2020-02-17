@@ -32,4 +32,6 @@ $ ./shell
 
 ## Known limitations
 
+Input must be less than 80 characters
 
+Input must have less than 10 arguments "including the program name."
